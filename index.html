@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Splitboard Backcountry Gear Checklist</title>
+  <style>
+    :root {
+      --bg-base: #0b0f17;
+      --bg-card: #131b29;
+      --bg-card-hover: #192336;
+      --bg-input: #0e1522;
+      --border: #233048;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+      --success: #22c55e;
+      --danger: #f43f5e;
+      --warning: #f59e0b;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.06) 0%, transparent 45%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    header {
+      padding: 1.5rem 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    .progress-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      position: sticky;
+      top: 0.75rem;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(19, 27, 41, 0.92);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .progress-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .badge.ready {
+      background: rgba(34, 197, 94, 0.16);
+      color: var(--success);
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .badge.critical-missing {
+      background: rgba(244, 63, 94, 0.16);
+      color: var(--danger);
+      border-color: rgba(244, 63, 94, 0.35);
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: var(--bg-input);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 999px;
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+    }
+
+    button.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    button.btn-danger:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .categories-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .category-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .category-header {
+      padding: 0.95rem 1.15rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .category-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-count {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .item-list {
+      list-style: none;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1.15rem;
+      border-bottom: 1px solid rgba(35, 48, 72, 0.6);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      user-select: none;
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-row:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+      background: var(--bg-input);
+    }
+
+    .item-row.checked .checkbox {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .checkbox svg {
+      width: 14px;
+      height: 14px;
+      stroke: #052e16;
+      stroke-width: 3;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.15s ease;
+    }
+
+    .item-row.checked .checkbox svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .item-label-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .item-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: color 0.15s ease;
+    }
+
+    .item-note {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .item-row.checked .item-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .item-row.checked .item-note {
+      color: var(--text-muted);
+    }
+
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: 0.5rem;
+    }
+
+    .tag-critical {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      font-weight: 700;
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.25rem 0.45rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .delete-btn:hover {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--danger);
+    }
+
+    .add-item-card {
+      margin-top: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+    }
+
+    .add-item-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .add-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .add-form input,
+    .add-form select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.6rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .add-form input:focus,
+    .add-form select:focus {
+      border-color: var(--accent);
+    }
+
+    .add-form input[type="text"] {
+      flex: 1 1 220px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #082f49;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #7dd3fc;
+      border-color: #7dd3fc;
+      color: #082f49;
+    }
+
+    .notes-area {
+      margin-top: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+    }
+
+    .notes-area label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .notes-area textarea {
+      width: 100%;
+      min-height: 80px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      padding: 0.75rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    .notes-area textarea:focus {
+      border-color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 560px) {
+      h1 {
+        font-size: 1.35rem;
+      }
+      .item-row {
+        padding: 0.75rem 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>🏔️ Splitboard Tour Checklist</h1>
+          <p class="subtitle">Backcountry touring &amp; avalanche safety pack list — auto-saved locally</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="progress-card" aria-label="Packing progress">
+      <div class="progress-header">
+        <span id="progress-text">0 / 0 Packed (0%)</span>
+        <div class="progress-stats">
+          <span id="avy-badge" class="badge critical-missing">Avy Essentials Incomplete</span>
+        </div>
+      </div>
+      <div class="progress-bar-track">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="filter-group" role="group" aria-label="Filter checklist">
+        <button type="button" class="filter-btn active" data-filter="all">All Gear</button>
+        <button type="button" class="filter-btn" data-filter="unpacked">Unpacked</button>
+        <button type="button" class="filter-btn" data-filter="critical">Critical Only</button>
+      </div>
+      <div class="filter-group">
+        <button type="button" id="uncheck-all-btn" class="btn-danger" title="Uncheck all items for a new tour">
+          ↺ New Tour Reset
+        </button>
+      </div>
+    </div>
+
+    <main id="categories-container" class="categories-grid"></main>
+
+    <section class="add-item-card">
+      <div class="add-item-title">+ Add Custom Gear Item</div>
+      <form id="add-item-form" class="add-form">
+        <input type="text" id="custom-item-name" placeholder="e.g., Crampons, Thermos, GoPro..." required />
+        <select id="custom-item-category">
+          <option value="avy">🚨 Avalanche Safety</option>
+          <option value="hardgoods">🏂 Splitboard &amp; Hardware</option>
+          <option value="apparel">🧥 Outerwear &amp; Layers</option>
+          <option value="pack">🎒 Pack, Repair &amp; First Aid</option>
+          <option value="nutrition">⚡ Hydration &amp; Fuel</option>
+        </select>
+        <button type="submit" class="btn-primary">Add Item</button>
+      </form>
+    </section>
+
+    <section class="notes-area">
+      <label for="tour-notes">🗺️ Tour Plan &amp; Trailhead Notes (Saved Automatically)</label>
+      <textarea id="tour-notes" placeholder="Objective, trailhead time, partner check, avalanche forecast summary, radio channel..."></textarea>
+    </section>
+
+    <footer>
+      State persists automatically in your browser via <code>localStorage</code>.
+    </footer>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'splitboard_checklist_v1';
+
+    const CATEGORIES = [
+      { id: 'avy', title: '🚨 Avalanche Safety & Navigation' },
+      { id: 'hardgoods', title: '🏂 Splitboard & Hardware' },
+      { id: 'apparel', title: '🧥 Outerwear & Layering' },
+      { id: 'pack', title: '🎒 Pack, Repair & Emergency' },
+      { id: 'nutrition', title: '⚡ Hydration & Nutrition' }
+    ];
+
+    const DEFAULT_ITEMS = [
+      // Avy Safety
+      { id: 'beacon', category: 'avy', name: 'Avalanche Transceiver (Beacon)', note: 'Check battery >80%, harness strapped on body', critical: true, checked: false },
+      { id: 'probe', category: 'avy', name: 'Collapsible Avalanche Probe', note: 'Inspect cable tension & latch', critical: true, checked: false },
+      { id: 'shovel', category: 'avy', name: 'Metal Avalanche Shovel', note: 'Blade + shaft packed in avy pocket', critical: true, checked: false },
+      { id: 'radios', category: 'avy', name: 'Two-Way Radios (Charged)', note: 'Verify group channel & mic clip', critical: true, checked: false },
+      { id: 'nav', category: 'avy', name: 'Offline Topo Map / Phone + Battery Bank', note: 'CalTopo / OnX downloaded for zone', critical: true, checked: false },
+      { id: 'snow-study', category: 'avy', name: 'Snow Saw / Slope Meter / Crystal Card', note: 'For pit stability tests', critical: false, checked: false },
+
+      // Splitboard & Hardware
+      { id: 'board', category: 'hardgoods', name: 'Splitboard (Clips & Hooks Checked)', note: 'Tip/tail clips tight, pucks aligned', critical: true, checked: false },
+      { id: 'skins', category: 'hardgoods', name: 'Climbing Skins (Glue Checked)', note: 'Trimmed & Cheat sheets / skin savers removed', critical: true, checked: false },
+      { id: 'poles', category: 'hardgoods', name: 'Collapsible Touring Poles', note: 'Powder baskets attached, flick-locks tight', critical: true, checked: false },
+      { id: 'boots', category: 'hardgoods', name: 'Splitboard / Snowboard Boots', note: 'Dry liners, boa/laces inspected', critical: true, checked: false },
+      { id: 'bindings', category: 'hardgoods', name: 'Splitboard Bindings & Interface Hardware', note: 'Tour brackets, risers, heel locks working', critical: true, checked: false },
+      { id: 'ski-crampons', category: 'hardgoods', name: 'Splitboard Ski Crampons', note: 'Essential for icy morning skin tracks', critical: false, checked: false },
+      { id: 'helmet', category: 'hardgoods', name: 'Helmet', note: 'With goggle clip', critical: false, checked: false },
+      { id: 'goggles', category: 'hardgoods', name: 'Goggles (Low-Light & Sun Lenses)', note: 'Packed in microfiber bag', critical: false, checked: false },
+      { id: 'sunglasses', category: 'hardgoods', name: 'Glacier / Touring Sunglasses', note: 'For the skin track climb', critical: false, checked: false },
+
+      // Apparel
+      { id: 'baselayer', category: 'apparel', name: 'Merino / Synthetic Base Layers', note: 'Top & bottom (no cotton)', critical: false, checked: false },
+      { id: 'shell-jacket', category: 'apparel', name: 'Hardshell Jacket & Bibs/Pants', note: 'Vents functional, pockets zipped', critical: true, checked: false },
+      { id: 'puffy', category: 'apparel', name: 'Packable Down / Synthetic Puffy', note: 'Transition & emergency warmth layer', critical: true, checked: false },
+      { id: 'gloves-up', category: 'apparel', name: 'Light Uphill Touring Gloves', note: 'Breathable for skinning', critical: false, checked: false },
+      { id: 'gloves-down', category: 'apparel', name: 'Warm Waterproof Riding Gloves / Mitts', note: 'Keep dry in pack until transition', critical: true, checked: false },
+      { id: 'beanie-buff', category: 'apparel', name: 'Touring Cap, Neck Buff & Warm Beanie', note: 'Sun & wind protection', critical: false, checked: false },
+      { id: 'socks', category: 'apparel', name: 'Merino Snowboard Socks', note: '+ dry pair in truck', critical: false, checked: false },
+
+      // Pack & Emergency
+      { id: 'pack', category: 'pack', name: 'Backcountry Touring / Airbag Pack', note: 'Check canister/charge if airbag', critical: true, checked: false },
+      { id: 'repair-kit', category: 'pack', name: 'Splitboard Field Repair Kit', note: 'Multi-tool, spare screws, Voile straps, bailing wire', critical: true, checked: false },
+      { id: 'first-aid', category: 'pack', name: 'First Aid Kit & Emergency Bivy Blanket', note: 'Blister tape, trauma dressing, SAM splint', critical: true, checked: false },
+      { id: 'headlamp', category: 'pack', name: 'Headlamp (Charged)', note: 'For dawn patrol or unexpected late exit', critical: true, checked: false },
+      { id: 'skin-wax', category: 'pack', name: 'Glob Stopper / Skin Wax & Scraper', note: 'Prevents snow clumping on warm spring tours', critical: false, checked: false },
+
+      // Nutrition
+      { id: 'water', category: 'nutrition', name: '1.5L – 2L Water (Insulated Bottles)', note: 'Avoid uninsulated bladder tubes in sub-freezing temps', critical: true, checked: false },
+      { id: 'snacks', category: 'nutrition', name: 'High-Calorie Pocket Snacks & Bars', note: 'Keep in warm pocket so they don’t freeze solid', critical: false, checked: false },
+      { id: 'sunscreen', category: 'nutrition', name: 'SPF 50 Sunscreen & Lip Balm', note: 'Snow reflection protection', critical: false, checked: false }
+    ];
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return {
+            items: DEFAULT_ITEMS,
+            filter: 'all',
+            notes: ''
+          };
+        }
+        const parsed = JSON.parse(raw);
+        return {
+          items: Array.isArray(parsed.items) && parsed.items.length ? parsed.items : DEFAULT_ITEMS,
+          filter: parsed.filter || 'all',
+          notes: typeof parsed.notes === 'string' ? parsed.notes : ''
+        };
+      } catch (e) {
+        return {
+          items: DEFAULT_ITEMS,
+          filter: 'all',
+          notes: ''
+        };
+      }
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Could not save state to localStorage', e);
+      }
+    }
+
+    function updateProgress() {
+      const total = state.items.length;
+      const checkedCount = state.items.filter(i => i.checked).length;
+      const pct = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+
+      document.getElementById('progress-text').textContent = `${checkedCount} / ${total} Packed (${pct}%)`;
+      document.getElementById('progress-fill').style.width = `${pct}%`;
+
+      const criticalItems = state.items.filter(i => i.critical);
+      const missingCritical = criticalItems.filter(i => !i.checked).length;
+      const badge = document.getElementById('avy-badge');
+
+      if (missingCritical === 0) {
+        badge.textContent = '✓ All Critical Gear Packed';
+        badge.className = 'badge ready';
+      } else {
+        badge.textContent = `${missingCritical} Critical Unpacked`;
+        badge.className = 'badge critical-missing';
+      }
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('categories-container');
+      container.innerHTML = '';
+
+      CATEGORIES.forEach(cat => {
+        const allCatItems = state.items.filter(item => item.category === cat.id);
+        const visibleItems = allCatItems.filter(item => {
+          if (state.filter === 'unpacked') return !item.checked;
+          if (state.filter === 'critical') return item.critical;
+          return true;
+        });
+
+        if (visibleItems.length === 0) return;
+
+        const checkedInCat = allCatItems.filter(i => i.checked).length;
+
+        const card = document.createElement('section');
+        card.className = 'category-card';
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = `
+          <div class="category-title">${cat.title}</div>
+          <div class="category-count">${checkedInCat} / ${allCatItems.length}</div>
+        `;
+        card.appendChild(header);
+
+        const ul = document.createElement('ul');
+        ul.className = 'item-list';
+
+        visibleItems.forEach(item => {
+          const li = document.createElement('li');
+          li.className = `item-row ${item.checked ? 'checked' : ''}`;
+          li.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-btn')) return;
+            item.checked = !item.checked;
+            saveState();
+            renderChecklist();
+            updateProgress();
+          });
+
+          li.innerHTML = `
+            <div class="item-left">
+              <div class="checkbox" role="checkbox" aria-checked="${item.checked}">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="item-label-group">
+                <span class="item-name"></span>
+                ${item.note ? `<span class="item-note"></span>` : ''}
+              </div>
+            </div>
+            <div class="item-right">
+              ${item.critical ? '<span class="tag-critical">Critical</span>' : ''}
+              ${item.custom ? '<button type="button" class="delete-btn" title="Remove custom item">✕</button>' : ''}
+            </div>
+          `;
+
+          li.querySelector('.item-name').textContent = item.name;
+          if (item.note) {
+            li.querySelector('.item-note').textContent = item.note;
+          }
+
+          if (item.custom) {
+            li.querySelector('.delete-btn').addEventListener('click', (e) => {
+              e.stopPropagation();
+              state.items = state.items.filter(i => i.id !== item.id);
+              saveState();
+              renderChecklist();
+              updateProgress();
+            });
+          }
+
+          ul.appendChild(li);
+        });
+
+        card.appendChild(ul);
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === state.filter);
+      });
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.filter = btn.dataset.filter;
+        saveState();
+        renderChecklist();
+      });
+    });
+
+    // Reset button
+    document.getElementById('uncheck-all-btn').addEventListener('click', () => {
+      state.items.forEach(item => {
+        item.checked = false;
+      });
+      saveState();
+      renderChecklist();
+      updateProgress();
+    });
+
+    // Add custom item
+    document.getElementById('add-item-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('custom-item-name');
+      const categorySelect = document.getElementById('custom-item-category');
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      state.items.push({
+        id: 'custom_' + Date.now(),
+        category: categorySelect.value,
+        name,
+        note: 'Custom item',
+        critical: categorySelect.value === 'avy',
+        checked: false,
+        custom: true
+      });
+
+      nameInput.value = '';
+      saveState();
+      renderChecklist();
+      updateProgress();
+    });
+
+    // Notes persistence
+    const notesTextarea = document.getElementById('tour-notes');
+    notesTextarea.value = state.notes;
+    notesTextarea.addEventListener('input', () => {
+      state.notes = notesTextarea.value;
+      saveState();
+    });
+
+    // Initial render
+    renderChecklist();
+    updateProgress();
+  </script>
+</body>
+</html>
