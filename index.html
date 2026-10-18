@@ -48,9 +48,9 @@
     }
 
     header {
-      padding: 1.5rem 0 1.25rem;
+      padding: 1.25rem 0 1rem;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .title-row {
@@ -76,6 +76,250 @@
       margin-top: 0.25rem;
     }
 
+    /* Live Utah Avalanche Center Forecast Widget */
+    .uac-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1.15rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .uac-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.95rem;
+    }
+
+    .uac-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .uac-live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    .uac-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .uac-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .uac-select {
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.38rem 0.65rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .uac-select:focus {
+      border-color: var(--accent);
+    }
+
+    .uac-icon-btn {
+      padding: 0.38rem 0.6rem;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+
+    .uac-main {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: center;
+      background: rgba(14, 21, 34, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.95rem 1.1rem;
+    }
+
+    .danger-pill-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 128px;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .danger-level-num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.9;
+    }
+
+    .danger-level-label {
+      font-size: 1.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      margin-top: 0.15rem;
+    }
+
+    .uac-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 0;
+    }
+
+    .uac-zone-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .uac-zone-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .uac-updated {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .uac-advice {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .uac-scale-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 0.45rem;
+    }
+
+    .scale-step {
+      height: 6px;
+      border-radius: 4px;
+      opacity: 0.25;
+      transition: all 0.2s ease;
+    }
+
+    .scale-step.active {
+      opacity: 1;
+      height: 8px;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .uac-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
+    }
+
+    .uac-zones-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .zone-chip {
+      font-size: 0.75rem;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .zone-chip:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .zone-chip.selected {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .zone-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .uac-ext-link {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .uac-ext-link:hover {
+      text-decoration: underline;
+    }
+
+    .uac-warning-banner {
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fda4af;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* Progress Card */
     .progress-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -449,6 +693,14 @@
       h1 {
         font-size: 1.35rem;
       }
+      .uac-main {
+        grid-template-columns: 1fr;
+      }
+      .danger-pill-box {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
       .item-row {
         padding: 0.75rem 0.95rem;
       }
@@ -465,6 +717,61 @@
         </div>
       </div>
     </header>
+
+    <!-- Live Utah Avalanche Center Forecast Section -->
+    <section class="uac-card" aria-label="Utah Avalanche Center Live Forecast">
+      <div class="uac-top-bar">
+        <div class="uac-brand">
+          <span id="uac-status-dot" class="uac-live-dot"></span>
+          <span class="uac-title">Utah Avalanche Center — Live Forecast</span>
+        </div>
+        <div class="uac-controls">
+          <select id="uac-zone-select" class="uac-select" aria-label="Select Utah Forecast Region">
+            <option value="Logan">Logan</option>
+            <option value="Ogden">Ogden</option>
+            <option value="Salt Lake">Salt Lake</option>
+            <option value="Provo">Provo</option>
+            <option value="Uintas">Uintas</option>
+            <option value="Skyline">Skyline</option>
+            <option value="Moab">Moab</option>
+            <option value="Abajos">Abajos</option>
+            <option value="Southwest">Southwest</option>
+          </select>
+          <button type="button" id="uac-refresh-btn" class="uac-icon-btn" title="Refresh live UAC forecast">↻</button>
+        </div>
+      </div>
+
+      <div class="uac-main">
+        <div id="uac-danger-box" class="danger-pill-box" style="background: #334155; color: #f8fafc;">
+          <span id="uac-danger-num" class="danger-level-num">Loading</span>
+          <span id="uac-danger-text" class="danger-level-label">...</span>
+        </div>
+
+        <div class="uac-details">
+          <div class="uac-zone-heading">
+            <span id="uac-zone-title" class="uac-zone-name">Fetching Utah Avalanche Center...</span>
+            <span id="uac-updated-time" class="uac-updated"></span>
+          </div>
+          <p id="uac-travel-advice" class="uac-advice">Connecting to Utah Avalanche Center public feed...</p>
+          <div class="uac-scale-bar" title="North American Public Avalanche Danger Scale (1 Low → 5 Extreme)">
+            <div class="scale-step" data-level="1" style="background: #50b848;" title="1 - Low"></div>
+            <div class="scale-step" data-level="2" style="background: #fff200;" title="2 - Moderate"></div>
+            <div class="scale-step" data-level="3" style="background: #f7941e;" title="3 - Considerable"></div>
+            <div class="scale-step" data-level="4" style="background: #ed1c24;" title="4 - High"></div>
+            <div class="scale-step" data-level="5" style="background: #a855f7;" title="5 - Extreme"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="uac-warning-banner" class="uac-warning-banner"></div>
+
+      <div class="uac-footer">
+        <div id="uac-zones-strip" class="uac-zones-strip" aria-label="Quick switch Utah zones"></div>
+        <a id="uac-full-link" class="uac-ext-link" href="https://utahavalanchecenter.org/" target="_blank" rel="noopener noreferrer">
+          Full UAC Advisory ↗
+        </a>
+      </div>
+    </section>
 
     <section class="progress-card" aria-label="Packing progress">
       <div class="progress-header">
@@ -514,12 +821,25 @@
     </section>
 
     <footer>
-      State persists automatically in your browser via <code>localStorage</code>.
+      State persists automatically in your browser via <code>localStorage</code>. Live forecast powered by Utah Avalanche Center / National Avalanche Center API.
     </footer>
   </div>
 
   <script>
     const STORAGE_KEY = 'splitboard_checklist_v1';
+    const UAC_MAP_API = 'https://api.avalanche.org/v2/public/products/map-layer/UAC';
+
+    const DANGER_META = {
+      '-1': { label: 'No Rating', levelText: 'Early / Off-Season', bg: '#475569', fg: '#f8fafc' },
+      '0':  { label: 'No Rating', levelText: 'No Rating', bg: '#475569', fg: '#f8fafc' },
+      '1':  { label: 'Low', levelText: 'Level 1 of 5', bg: '#22c55e', fg: '#052e16' },
+      '2':  { label: 'Moderate', levelText: 'Level 2 of 5', bg: '#eab308', fg: '#1e1b04' },
+      '3':  { label: 'Considerable', levelText: 'Level 3 of 5', bg: '#f97316', fg: '#270e02' },
+      '4':  { label: 'High', levelText: 'Level 4 of 5', bg: '#ef4444', fg: '#ffffff' },
+      '5':  { label: 'Extreme', levelText: 'Level 5 of 5', bg: '#1e1b4b', fg: '#f8fafc' }
+    };
+
+    const ZONE_ORDER = ['Logan', 'Ogden', 'Salt Lake', 'Provo', 'Uintas', 'Skyline', 'Moab', 'Abajos', 'Southwest'];
 
     const CATEGORIES = [
       { id: 'avy', title: '🚨 Avalanche Safety & Navigation' },
@@ -578,25 +898,29 @@
           return {
             items: DEFAULT_ITEMS,
             filter: 'all',
-            notes: ''
+            notes: '',
+            uacZone: 'Logan'
           };
         }
         const parsed = JSON.parse(raw);
         return {
           items: Array.isArray(parsed.items) && parsed.items.length ? parsed.items : DEFAULT_ITEMS,
           filter: parsed.filter || 'all',
-          notes: typeof parsed.notes === 'string' ? parsed.notes : ''
+          notes: typeof parsed.notes === 'string' ? parsed.notes : '',
+          uacZone: parsed.uacZone || 'Logan'
         };
       } catch (e) {
         return {
           items: DEFAULT_ITEMS,
           filter: 'all',
-          notes: ''
+          notes: '',
+          uacZone: 'Logan'
         };
       }
     }
 
     let state = loadState();
+    let uacZonesMap = {};
 
     function saveState() {
       try {
@@ -605,6 +929,123 @@
         console.error('Could not save state to localStorage', e);
       }
     }
+
+    // Live UAC Forecast Logic
+    const zoneSelect = document.getElementById('uac-zone-select');
+    zoneSelect.value = state.uacZone;
+
+    function renderUACForecast() {
+      const selectedName = state.uacZone || 'Logan';
+      zoneSelect.value = selectedName;
+      const zoneData = uacZonesMap[selectedName];
+
+      if (!zoneData) return;
+
+      const props = zoneData.properties;
+      const levelKey = String(props.danger_level ?? -1);
+      const meta = DANGER_META[levelKey] || DANGER_META['-1'];
+
+      const dangerBox = document.getElementById('uac-danger-box');
+      dangerBox.style.background = meta.bg;
+      dangerBox.style.color = meta.fg;
+
+      document.getElementById('uac-danger-num').textContent = meta.levelText;
+      document.getElementById('uac-danger-text').textContent =
+        props.danger && props.danger !== 'no rating' ? props.danger : meta.label;
+
+      document.getElementById('uac-zone-title').textContent = `${props.name} Mountains — Utah`;
+      document.getElementById('uac-travel-advice').textContent =
+        props.travel_advice || 'Check full advisory on Utah Avalanche Center before heading out.';
+
+      const updatedEl = document.getElementById('uac-updated-time');
+      if (props.start_date) {
+        const dt = new Date(props.start_date);
+        updatedEl.textContent = isNaN(dt) ? `Issued: ${props.start_date}` : `Issued: ${dt.toLocaleDateString()}`;
+      } else {
+        updatedEl.textContent = props.off_season ? 'Off-Season Summary' : 'Live UAC Feed';
+      }
+
+      const fullLink = document.getElementById('uac-full-link');
+      fullLink.href = props.link || 'https://utahavalanchecenter.org/';
+      fullLink.textContent = `Full ${props.name} Advisory ↗`;
+
+      // Update 1-5 scale bar
+      document.querySelectorAll('.scale-step').forEach(step => {
+        const stepLvl = Number(step.dataset.level);
+        step.classList.toggle('active', stepLvl > 0 && stepLvl <= Number(props.danger_level));
+      });
+
+      // Active warning banner if present
+      const warningBanner = document.getElementById('uac-warning-banner');
+      if (props.warning && props.warning.product) {
+        warningBanner.style.display = 'block';
+        warningBanner.textContent = `⚠️ Active Avalanche Warning / Watch in effect for ${props.name}!`;
+      } else {
+        warningBanner.style.display = 'none';
+      }
+
+      // Render quick-switch chips for all 9 Utah zones
+      const strip = document.getElementById('uac-zones-strip');
+      strip.innerHTML = '';
+      ZONE_ORDER.forEach(zName => {
+        const zFeature = uacZonesMap[zName];
+        if (!zFeature) return;
+        const zLvl = String(zFeature.properties.danger_level ?? -1);
+        const zMeta = DANGER_META[zLvl] || DANGER_META['-1'];
+
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = `zone-chip ${zName === selectedName ? 'selected' : ''}`;
+        chip.innerHTML = `<span class="zone-dot" style="background:${zMeta.bg}"></span>${zName}`;
+        chip.addEventListener('click', () => {
+          state.uacZone = zName;
+          saveState();
+          renderUACForecast();
+        });
+        strip.appendChild(chip);
+      });
+    }
+
+    async function fetchUACForecast() {
+      const dot = document.getElementById('uac-status-dot');
+      const refreshBtn = document.getElementById('uac-refresh-btn');
+      try {
+        refreshBtn.disabled = true;
+        const res = await fetch(UAC_MAP_API, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        uacZonesMap = {};
+        if (Array.isArray(data.features)) {
+          data.features.forEach(feat => {
+            if (feat && feat.properties && feat.properties.name) {
+              uacZonesMap[feat.properties.name] = feat;
+            }
+          });
+        }
+
+        dot.style.background = 'var(--success)';
+        dot.style.boxShadow = '0 0 8px var(--success)';
+        renderUACForecast();
+      } catch (err) {
+        console.error('Failed to fetch UAC forecast:', err);
+        dot.style.background = 'var(--warning)';
+        dot.style.boxShadow = 'none';
+        document.getElementById('uac-zone-title').textContent = `${state.uacZone} Region (Offline)`;
+        document.getElementById('uac-travel-advice').textContent =
+          'Unable to reach live UAC feed right now. Tap "Full UAC Advisory" to check utahavalanchecenter.org directly.';
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    }
+
+    zoneSelect.addEventListener('change', () => {
+      state.uacZone = zoneSelect.value;
+      saveState();
+      renderUACForecast();
+    });
+
+    document.getElementById('uac-refresh-btn').addEventListener('click', fetchUACForecast);
 
     function updateProgress() {
       const total = state.items.length;
@@ -764,9 +1205,10 @@
       saveState();
     });
 
-    // Initial render
+    // Initial render & live forecast fetch
     renderChecklist();
     updateProgress();
+    fetchUACForecast();
   </script>
 </body>
 </html>
