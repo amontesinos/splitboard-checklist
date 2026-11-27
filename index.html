@@ -107,8 +107,7 @@
       width: 9px;
       height: 9px;
       border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 8px var(--success);
+      background: var(--warning);
       animation: pulse 2s infinite;
     }
 
@@ -934,110 +933,172 @@
     const zoneSelect = document.getElementById('uac-zone-select');
     zoneSelect.value = state.uacZone;
 
+    const uacForecastUrls = {
+      Logan: 'logan', Ogden: 'ogden', 'Salt Lake': 'salt-lake', Provo: 'provo',
+      Uintas: 'uintas', Skyline: 'skyline', Moab: 'moab', Abajos: 'abajos'
+    };
+    const uacMountainClock = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Denver', hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    let uacFeedState = 'loading';
+    let uacExpiryTimer;
+
+    function uacMountainWallTime(time) {
+      const parts = Object.fromEntries(uacMountainClock.formatToParts(time).map(p => [p.type, p.value]));
+      return Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+    }
+
+    function parseUACDate(value) {
+      if (typeof value !== 'string') return NaN;
+      const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?)(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/.exec(value);
+      if (!match) return NaN;
+      const whole = match[1].length === 16 ? match[1] + ':00' : match[1];
+      const wall = Date.parse(whole + 'Z');
+      if (!Number.isFinite(wall) || new Date(wall).toISOString().slice(0, 19) !== whole) return NaN;
+      const millis = Number((match[2] || '.0').slice(1).padEnd(3, '0').slice(0, 3));
+      if (match[3]) return Date.parse(whole + (match[2] || '') + match[3]);
+
+      // Avalanche.org can publish offset-less dates in the center's timezone.
+      // Resolve Utah wall times in Mountain time, regardless of the browser timezone.
+      const offsets = new Set([-86400000, 0, 86400000].map(delta => {
+        const sample = wall + delta;
+        return uacMountainWallTime(sample) - sample;
+      }));
+      const candidates = [...offsets].map(offset => wall - offset).filter(t => uacMountainWallTime(t) === wall);
+      // An ambiguous or nonexistent DST time isn't a verifiable expiry.
+      return candidates.length === 1 ? candidates[0] + millis : NaN;
+    }
+
+    function getUACProduct(zoneName, now) {
+      const props = uacZonesMap[zoneName]?.properties;
+      if (!props) return { status: 'Unavailable' };
+      const start = parseUACDate(props.start_date);
+      const end = parseUACDate(props.end_date);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start > now || end <= start) {
+        return { status: 'Unavailable' };
+      }
+      if (end <= now) return { status: 'Expired' };
+      const rawLevel = props.danger_level;
+      const level = /^[1-5]$/.test(String(rawLevel)) ? Number(rawLevel) : null;
+      const warningStart = parseUACDate(props.warning?.start_date);
+      const warningEnd = parseUACDate(props.warning?.end_date);
+      const activeWarning = Boolean(props.warning?.product && warningStart <= now && warningEnd > now);
+      const nextWarningChange = activeWarning ? warningEnd
+        : props.warning?.product && warningStart > now && warningEnd > warningStart ? warningStart : null;
+      return { status: level === null ? 'No Rating' : 'Current', props, start, end, level, activeWarning, nextWarningChange };
+    }
+
     function renderUACForecast() {
-      const selectedName = state.uacZone || 'Logan';
+      clearTimeout(uacExpiryTimer);
+      const selectedName = ZONE_ORDER.includes(state.uacZone) ? state.uacZone : 'Logan';
       zoneSelect.value = selectedName;
-      const zoneData = uacZonesMap[selectedName];
+      const now = Date.now();
+      const product = uacFeedState === 'loaded'
+        ? getUACProduct(selectedName, now)
+        : { status: uacFeedState === 'offline' ? 'Offline' : 'Loading' };
+      const { status, props, start, level, activeWarning } = product;
+      const meta = DANGER_META[level ?? '0'];
+      const get = id => document.getElementById(id);
 
-      if (!zoneData) return;
-
-      const props = zoneData.properties;
-      const levelKey = String(props.danger_level ?? -1);
-      const meta = DANGER_META[levelKey] || DANGER_META['-1'];
-
-      const dangerBox = document.getElementById('uac-danger-box');
+      // Write every forecast field, even when there's no valid product to display.
+      const dangerBox = get('uac-danger-box');
       dangerBox.style.background = meta.bg;
       dangerBox.style.color = meta.fg;
+      get('uac-danger-num').textContent = level != null ? meta.levelText : '—';
+      get('uac-danger-text').textContent = level != null ? meta.label : status;
+      get('uac-zone-title').textContent = selectedName + ' Mountains — Utah';
+      get('uac-updated-time').textContent = props
+        ? 'Issued: ' + new Date(start).toLocaleString('en-US', { timeZone: 'America/Denver', timeZoneName: 'short' })
+        : '';
+      get('uac-travel-advice').textContent = props?.travel_advice || {
+        Expired: 'The forecast has expired. Check the official advisory for current conditions.',
+        Unavailable: 'No current forecast could be verified. Check the official advisory.',
+        Offline: 'Unable to refresh the forecast. Check the official advisory when connected.',
+        Loading: 'Checking for a current forecast…'
+      }[status] || 'Check the official advisory before heading out.';
+      const fullLink = get('uac-full-link');
+      const region = uacForecastUrls[selectedName];
+      fullLink.href = region
+        ? 'https://utahavalanchecenter.org/forecast/' + region
+        : 'https://utahavalanchecenter.org/';
+      fullLink.textContent = region ? 'Official ' + selectedName + ' Advisory ↗' : 'Official Utah Avalanche Center ↗';
 
-      document.getElementById('uac-danger-num').textContent = meta.levelText;
-      document.getElementById('uac-danger-text').textContent =
-        props.danger && props.danger !== 'no rating' ? props.danger : meta.label;
-
-      document.getElementById('uac-zone-title').textContent = `${props.name} Mountains — Utah`;
-      document.getElementById('uac-travel-advice').textContent =
-        props.travel_advice || 'Check full advisory on Utah Avalanche Center before heading out.';
-
-      const updatedEl = document.getElementById('uac-updated-time');
-      if (props.start_date) {
-        const dt = new Date(props.start_date);
-        updatedEl.textContent = isNaN(dt) ? `Issued: ${props.start_date}` : `Issued: ${dt.toLocaleDateString()}`;
-      } else {
-        updatedEl.textContent = props.off_season ? 'Off-Season Summary' : 'Live UAC Feed';
-      }
-
-      const fullLink = document.getElementById('uac-full-link');
-      fullLink.href = props.link || 'https://utahavalanchecenter.org/';
-      fullLink.textContent = `Full ${props.name} Advisory ↗`;
-
-      // Update 1-5 scale bar
       document.querySelectorAll('.scale-step').forEach(step => {
         const stepLvl = Number(step.dataset.level);
-        step.classList.toggle('active', stepLvl > 0 && stepLvl <= Number(props.danger_level));
+        step.classList.toggle('active', level != null && stepLvl > 0 && stepLvl <= level);
       });
+      const warningBanner = get('uac-warning-banner');
+      warningBanner.style.display = activeWarning ? 'block' : 'none';
+      warningBanner.textContent = activeWarning ? '⚠️ Active Avalanche Warning / Watch for ' + selectedName + '!' : '';
+      const dot = get('uac-status-dot');
+      dot.style.background = status === 'Current' ? 'var(--success)' : 'var(--warning)';
+      dot.style.boxShadow = 'none';
 
-      // Active warning banner if present
-      const warningBanner = document.getElementById('uac-warning-banner');
-      if (props.warning && props.warning.product) {
-        warningBanner.style.display = 'block';
-        warningBanner.textContent = `⚠️ Active Avalanche Warning / Watch in effect for ${props.name}!`;
-      } else {
-        warningBanner.style.display = 'none';
-      }
-
-      // Render quick-switch chips for all 9 Utah zones
-      const strip = document.getElementById('uac-zones-strip');
-      strip.innerHTML = '';
-      ZONE_ORDER.forEach(zName => {
-        const zFeature = uacZonesMap[zName];
-        if (!zFeature) return;
-        const zLvl = String(zFeature.properties.danger_level ?? -1);
-        const zMeta = DANGER_META[zLvl] || DANGER_META['-1'];
-
+      const strip = get('uac-zones-strip');
+      strip.replaceChildren();
+      const expiries = [];
+      if (uacFeedState === 'loaded') for (const name of ZONE_ORDER) {
+        const zone = getUACProduct(name, now);
+        if (!zone.props) continue;
+        expiries.push(zone.end);
+        if (zone.nextWarningChange) expiries.push(zone.nextWarningChange);
         const chip = document.createElement('button');
         chip.type = 'button';
-        chip.className = `zone-chip ${zName === selectedName ? 'selected' : ''}`;
-        chip.innerHTML = `<span class="zone-dot" style="background:${zMeta.bg}"></span>${zName}`;
+        chip.className = 'zone-chip' + (name === selectedName ? ' selected' : '');
+        const zoneDot = document.createElement('span');
+        zoneDot.className = 'zone-dot';
+        zoneDot.style.background = DANGER_META[zone.level ?? '0'].bg;
+        chip.append(zoneDot, name);
         chip.addEventListener('click', () => {
-          state.uacZone = zName;
+          state.uacZone = name;
           saveState();
           renderUACForecast();
         });
         strip.appendChild(chip);
-      });
+      }
+      if (expiries.length) {
+        // Expire visible ratings even if the user leaves the page open.
+        uacExpiryTimer = setTimeout(renderUACForecast, Math.min(Math.min(...expiries) - now, 2147483647));
+      }
     }
 
     async function fetchUACForecast() {
-      const dot = document.getElementById('uac-status-dot');
       const refreshBtn = document.getElementById('uac-refresh-btn');
+      if (refreshBtn.disabled) return;
+      refreshBtn.disabled = true;
+      uacFeedState = 'loading';
+      uacZonesMap = Object.create(null);
+      renderUACForecast();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
       try {
-        refreshBtn.disabled = true;
-        const res = await fetch(UAC_MAP_API, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(UAC_MAP_API, { cache: 'no-store', signal: controller.signal });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-
-        uacZonesMap = {};
-        if (Array.isArray(data.features)) {
-          data.features.forEach(feat => {
-            if (feat && feat.properties && feat.properties.name) {
-              uacZonesMap[feat.properties.name] = feat;
-            }
-          });
+        if (!Array.isArray(data?.features)) throw new Error('Invalid forecast feed');
+        for (const feature of data.features) {
+          const name = feature?.properties?.name;
+          if (ZONE_ORDER.includes(name)) uacZonesMap[name] = feature;
         }
-
-        dot.style.background = 'var(--success)';
-        dot.style.boxShadow = '0 0 8px var(--success)';
-        renderUACForecast();
+        uacFeedState = 'loaded';
       } catch (err) {
         console.error('Failed to fetch UAC forecast:', err);
-        dot.style.background = 'var(--warning)';
-        dot.style.boxShadow = 'none';
-        document.getElementById('uac-zone-title').textContent = `${state.uacZone} Region (Offline)`;
-        document.getElementById('uac-travel-advice').textContent =
-          'Unable to reach live UAC feed right now. Tap "Full UAC Advisory" to check utahavalanchecenter.org directly.';
+        uacFeedState = 'offline';
+        uacZonesMap = Object.create(null);
       } finally {
+        clearTimeout(timeout);
         refreshBtn.disabled = false;
+        renderUACForecast();
       }
     }
+
+    window.addEventListener('focus', renderUACForecast);
+    window.addEventListener('pageshow', renderUACForecast);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) renderUACForecast();
+    });
 
     zoneSelect.addEventListener('change', () => {
       state.uacZone = zoneSelect.value;
